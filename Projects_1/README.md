@@ -1,6 +1,6 @@
 ## Week2
 
-# Projects are about:
+# Project Topics:
 1) Dockerfile
 2) SonarQube
 3) Docker Compose
