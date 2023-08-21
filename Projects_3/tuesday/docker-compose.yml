@@ -51,7 +51,7 @@ services:
     expose:
       - 3000
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=Tom67Hardy&
+      - GF_SECURITY_ADMIN_PASSWORD=******
       - GF_USERS_ALLOW_SIGN_UP=true
     networks:
       - monitoring
