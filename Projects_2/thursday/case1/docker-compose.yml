@@ -1,0 +1,9 @@
+services:
+  image-compose:
+    image: image1:dind
+    ports:
+      - "8080:4200"
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    

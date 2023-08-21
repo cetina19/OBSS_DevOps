@@ -1,0 +1,95 @@
+stages:
+  - build
+  - test
+  - artifact
+  - docker
+  - static
+  - dynamic
+
+build-stage:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:7.0
+  variables:
+    OBJECTS_DIRECTORY: 'obj'
+    NUGET_PACKAGES_DIRECTORY: '.nuget'
+    SOURCE_CODE_PATH: '*/*/'
+  cache:
+    key: "$CI_JOB_STAGE-$CI_COMMIT_REF_SLUG"
+    paths:
+      - '$SOURCE_CODE_PATH$OBJECTS_DIRECTORY/project.assets.json'
+      - '$SOURCE_CODE_PATH$OBJECTS_DIRECTORY/*.csproj.nuget.*'
+      - '$NUGET_PACKAGES_DIRECTORY'
+    policy: pull-push
+  before_script:
+  - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
+  script:
+    - dotnet build --no-restore
+    - echo "Build Stage"
+
+test-stage:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:7.0
+  script:
+    - dotnet test --no-restore
+    - echo "Test Stage"
+
+artifact-stage:
+  image: mcr.microsoft.com/dotnet/sdk:7.0
+  stage: artifact
+  only:
+    - master
+  artifacts:
+    paths:
+      - publish/
+  script: 
+    - dotnet publish -c Release -o ./publish ./dotnetcore.csproj
+    - dotnet pack -c Release -o $PWD/nuget
+    - dotnet nuget add source "$CI_SERVER_URL/api/v4/projects/$CI_PROJECT_ID/packages/nuget/index.json" --name gitlab --username gitlab-ci-token --password $CI_JOB_TOKEN --store-password-in-clear-text
+    - dotnet nuget push "$PWD/nuget/*.nupkg" --source gitlab
+    - echo "Artifacts Stage"
+
+docker-stage:
+  stage: docker
+  image: docker:stable
+  services:
+   - name: docker:dind
+     alias: dockerdaemon
+     command: ["--insecure-registry=a16762aee6ff5485281190329b6c4efd-433642122.us-east-1.elb.amazonaws.com"]
+  variables:
+    DOCKER_HOST: tcp://dockerdaemon:2375/
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  only:
+    - master
+  allow_failure: true
+  script: 
+    - docker login -u alper.cetin -p AlperCetin2023 http://a16762aee6ff5485281190329b6c4efd-433642122.us-east-1.elb.amazonaws.com/
+    - docker build -t alper_dotnet:dind .
+    - docker tag alper_dotnet:dind a16762aee6ff5485281190329b6c4efd-433642122.us-east-1.elb.amazonaws.com/internship/alper_dotnet_case4
+    - docker push a16762aee6ff5485281190329b6c4efd-433642122.us-east-1.elb.amazonaws.com/internship/alper_dotnet_case4:latest
+    - echo "Dotnet Stage"
+
+static-stage:
+  stage: static
+  image: 
+    name: sonarsource/sonar-scanner-cli:latest
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  
+    GIT_DEPTH: "0" 
+    SONAR_HOST_URL: http://a13afa3e4a01a4c9892e92550e9aa2bf-1025562149.us-east-1.elb.amazonaws.com:9000
+    SONAR_LOGIN: alper.cetin
+    SONAR_PASSWORD: AlperCetin2023
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script: 
+    - sonar-scanner -X -Dsonar.login="alper.cetin" -Dsonar.password="AlperCetin2023" -Dsonar.sources=. -Dsonar.host.url=http://a13afa3e4a01a4c9892e92550e9aa2bf-1025562149.us-east-1.elb.amazonaws.com:9000 -Dsonar.projectKey=static-stage
+  allow_failure: true
+  only:
+    - master
+
+dynamic-stage:
+  image: docker:stable
+  stage: dynamic
+  script: echo "Define your deployment script!"

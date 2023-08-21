@@ -1,0 +1,38 @@
+pipeline {
+	agent any
+	stages {
+		stage('Connecting the branch') { 
+    			steps {
+					git branch: 'main', url: 'http://52.59.214.22/alper-cetin/simpleapp.git' , credentialsId: 'gitlabID'
+					echo 'Branch connection is established'
+			}
+		}
+		stage('Build the app') {
+			steps {
+				sh 'g++ simpleapp.cpp -o simpleapp'
+			}
+		}
+		stage('Test the app'){
+			steps{
+				sh "chmod +x simpleapp"
+				sh "./simpleapp 'Alper' 100 10 2 'n'"
+				sh "./simpleapp 'Alper' 200 10 8 'n'"
+				sh "./simpleapp 'Alper' 20 10 5 'n'"
+			}
+		}
+		stage('Dockerize the app'){
+			steps{
+				sh "docker build --rm -f Dockerfile.yml -t dockercpp:latest ."
+				echo 'Dockerized'
+			}
+		}
+		stage('Push the docker image'){
+			steps{
+				sh "docker login -u alper.cetin -p AlperCetin2023 https://a16762aee6ff5485281190329b6c4efd-433642122.us-east-1.elb.amazonaws.com/"
+				sh "docker tag dockercpp:latest a16762aee6ff5485281190329b6c4efd-433642122.us-east-1.elb.amazonaws.com/internship/alper:cpp_app"
+				sh "docker push a16762aee6ff5485281190329b6c4efd-433642122.us-east-1.elb.amazonaws.com/internship/alper:cpp_app"
+				echo 'Pushed the docker image'
+			}
+		}
+	}
+}

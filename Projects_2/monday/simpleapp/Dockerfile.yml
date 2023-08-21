@@ -1,0 +1,9 @@
+FROM gcc:10.2
+
+COPY . /usr/src/dockertestcpp
+
+WORKDIR /usr/src/dockertestcpp
+
+RUN g++ -o simpleapp simpleapp.cpp
+
+CMD ["./simpleapp"]

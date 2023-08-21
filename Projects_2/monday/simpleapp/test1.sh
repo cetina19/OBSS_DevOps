@@ -1,0 +1,1 @@
+./simpleapp.exe 'Alper' 100 10 2 'n'
