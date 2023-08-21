@@ -1,0 +1,57 @@
+version: '3'
+
+networks:
+  monitoring:
+    driver: bridge
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.46.0
+    container_name: prometheus
+    restart: unless-stopped
+    user: root
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus-data:/prometheus/
+    expose:
+      - 9090
+    ports:
+      - 9090:9090
+    links:
+      - jira:jira
+      - grafana:grafana
+    networks:
+      - monitoring
+
+  jira:
+    image: atlassian/jira-software:8.22.0
+    container_name: jira
+    restart: unless-stopped
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - 8080:8080
+    expose:
+      - 8080
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    user: root
+    restart: unless-stopped
+    volumes:
+      - /home/alper402cetin/w4/tuesday/case1/grafana:/var/lib/grafana
+    ports:
+      - 3000:3000
+    expose:
+      - 3000
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=Tom67Hardy&
+      - GF_USERS_ALLOW_SIGN_UP=true
+    networks:
+      - monitoring
