@@ -1,0 +1,5 @@
+FROM python:latest
+COPY index.html /
+COPY server.py /
+EXPOSE 3000
+CMD [ "python3", "./server.py"]

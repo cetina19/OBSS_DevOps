@@ -1,0 +1,10 @@
+FROM node:alpine AS build
+ENV NODE_ENV build
+WORKDIR /app
+COPY ./package.json /app
+RUN npm install
+COPY . .
+RUN npm run build
+EXPOSE 4200
+ENTRYPOINT [ "npm", "start", "--" ]
+CMD ["--host", "0.0.0.0"]

@@ -1,0 +1,14 @@
+Advanced example/exercise: build a plugin module: 
+
+that scans current modules (including project directory) using "pkgutil", 
+
+imports them using "importlib", and executes the "run" method/function defined in them, sequentially, if module name starts with 'plugin_sample'.
+
+ 
+
+my imported modules:
+import fire
+
+import pkgutil
+
+import importlib

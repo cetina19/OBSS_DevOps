@@ -1,0 +1,61 @@
+---
+  -  hosts: localhost
+     tasks:
+     -  name: Creating File
+        file:
+          path: /home/alper402cetin/w2/ansible/test_file.txt
+          owner: alper402cetin
+          group: root
+          state: touch
+        become: yes
+
+     -  name: Change permission
+        ansible.builtin.file:
+          path: /home/alper402cetin/w2/ansible/test_file.txt
+          owner: alper402cetin
+          group: root
+          mode: 0555
+
+     -  name: Add content
+        blockinfile:
+          path: /home/alper402cetin/w2/ansible/test_file.txt
+          backup: no
+          block: |
+            Line 1
+            Line 2
+            Line 3
+
+     -  name: Read the content
+        shell: |
+          cat /home/alper402cetin/w2/ansible/test_file.txt
+        register: all_content
+
+     -  name: Print the content
+        debug:
+          msg: "{{ all_content.stdout }}"
+
+     -  name: Add after print
+        copy:
+          dest: /home/alper402cetin/w2/ansible/test_file2.txt
+          content:
+            "{{ all_content.stdout }}"
+
+     -  name: Read the updated content
+        shell: |
+          cat /home/alper402cetin/w2/ansible/test_file2.txt
+        register: all_content2
+
+     -  name: Print the updated content
+        debug:
+          msg: "{{ all_content2.stdout }}"
+
+     -  name: Creating another directory
+        file:
+          path: /home/alper402cetin/w2/ansible/new_dir
+          state: directory
+          mode: 0775
+
+     -  name: Copying the updated file
+        copy:
+          src: /home/alper402cetin/w2/ansible/test_file2.txt
+          dest: /home/alper402cetin/w2/ansible/new_dir/test_file2.txt

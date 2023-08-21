@@ -1,0 +1,10 @@
+Write a class named “LogParser” having a method sig “parse_access_log(log_path : string)”.
+It should parse the sample log, output total response-bytes in the first line, and those 4XX returned addresses line by line below it. Use ‘fire’ library to parse parameters automatically: eg: <python3 log_parser.py parse_access_log “nas.log”> . Parsing lines using 're' is encouraged.
+Sample output should be:
+ 
+ 
+1578
+/yaba 
+/duu 
+/daba 
+/favicon.ico

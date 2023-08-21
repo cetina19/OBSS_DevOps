@@ -1,0 +1,13 @@
+services:
+  nginx-compose:
+    image: nginx:latest
+    ports:
+      - "4200:8080"
+  react-app1:
+    image: getting-started:latest
+    ports:
+      - "8080:3000"
+  react-app2:
+    image: getting-started:latest
+    ports:
+      - "8081:3000"
